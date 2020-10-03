@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Intelligent Appraiser</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <style>
+            body {background-color: aqua;}
+            #predicted-price {
+                display: none;
+                margin-bottom: 1%;
+            }
+        </style>    
+    </head>
+    <body>
+        <h3>House Intelligent Appraiser</h3>
+        <div id='predicted-price'>
+            <label for="predicted-price">Predicted Price:</label><br>
+            <h3 id="predicted-price-text"></h3>
+        </div>
+        <form>
+            <label for="chas">CHAS:</label><br>
+            <input type="text" id="chas" name="chas" value="0"><br>
+            <label for="rm">RM:</label><br>
+            <input type="text" id="rm" name="rm" value="6.575"><br><br>
+		    <label for="tax">TAX:</label><br>
+            <input type="text" id="tax" name="tax" value="296.0"><br><br>
+		    <label for="ptratio">PTRATIO:</label><br>
+            <input type="text" id="ptratio" name="ptratio" value="15.3"><br><br>
+		    <label for="b">B:</label><br>
+            <input type="text" id="b" name="b" value="396.9"><br><br>
+		    <label for="lsat">LSTAT:</label><br>
+            <input type="text" id="lstat" name="lsat" value="4.98"><br><br>
+            <input type="submit" id="submit">
+        </form>
+        <script>
+                const predictedPrice = '#predicted-price';
+                const predictedPriceText = '#predicted-price-text';
+                $("#submit").on("click", function (e) {
+                    e.preventDefault();
+	                $.ajax({
+		                url: "/predict",
+		                data: {			        
+                            CHAS : $('#chas').val(),
+		                    RM : $('#rm').val(),
+		                    TAX : $('#tax').val(),
+		                    PTRATIO : $('#ptratio').val(),
+		                    B : $('#b').val(),
+		                    LSTAT : $('#lstat').val()
+		                },
+		                dataType: "text",
+		                type: "POST",
+		                success: function (data) {
+                            const jsonData = JSON.parse(data);
+			                if (jsonData.prediction) {
+                                $(predictedPriceText).text(parseFloat(jsonData.prediction).toFixed(2));
+                                $(predictedPrice).show();
+			                } else {
+				                alert("Prediction failed");
+                                hideAndClearPrediction();
+			                }
+		                },
+                        error: function (data) {
+                            alert("api call error");
+                            hideAndClearPrediction();
+                        } 
+	                });
+	                return false;
+                });
+
+                function hideAndClearPrediction() {
+                    $(predictedPrice).hide();
+                    $(predictedPriceText).text('');
+                }
+        </script>
+    </body>
+</html>
